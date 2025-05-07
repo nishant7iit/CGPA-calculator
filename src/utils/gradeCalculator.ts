@@ -15,10 +15,15 @@ export const gradePoints: Record<Grade, number> = {
 export const calculateSGPA = (courses: Course[]): number => {
   if (courses.length === 0) return 0;
   
+  // Filter out 'Additional' course types
+  const countedCourses = courses.filter(course => course.type !== 'Additional');
+  
+  if (countedCourses.length === 0) return 0;
+  
   let totalPoints = 0;
   let totalCredits = 0;
   
-  courses.forEach(course => {
+  countedCourses.forEach(course => {
     const points = gradePoints[course.grade];
     totalPoints += points * course.credits;
     totalCredits += course.credits;
@@ -28,14 +33,22 @@ export const calculateSGPA = (courses: Course[]): number => {
 };
 
 export const calculateCGPA = (semesters: Semester[]): number => {
-  const semestersWithCourses = semesters.filter(semester => semester.courses.length > 0);
+  const allCourses = semesters.flatMap(semester => semester.courses);
+  // Filter out 'Additional' course types
+  const countedCourses = allCourses.filter(course => course.type !== 'Additional');
   
-  if (semestersWithCourses.length === 0) return 0;
+  if (countedCourses.length === 0) return 0;
   
-  const sgpas = semestersWithCourses.map(semester => calculateSGPA(semester.courses));
-  const totalSGPA = sgpas.reduce((sum, sgpa) => sum + sgpa, 0);
+  let totalPoints = 0;
+  let totalCredits = 0;
   
-  return parseFloat((totalSGPA / semestersWithCourses.length).toFixed(2));
+  countedCourses.forEach(course => {
+    const points = gradePoints[course.grade];
+    totalPoints += points * course.credits;
+    totalCredits += course.credits;
+  });
+  
+  return totalCredits > 0 ? parseFloat((totalPoints / totalCredits).toFixed(2)) : 0;
 };
 
 export const formatNumber = (num: number): string => {

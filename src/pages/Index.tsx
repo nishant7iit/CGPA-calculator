@@ -6,7 +6,7 @@ import SemesterCard from '@/components/SemesterCard';
 import SummaryCard from '@/components/SummaryCard';
 import HowToUse from '@/components/HowToUse';
 import Footer from '@/components/Footer';
-import { Course, Grade, Semester } from '@/types';
+import { Course, Grade, Semester, CourseType } from '@/types';
 import { generateId, saveSemesters, loadSemesters, clearAllData } from '@/utils/localStorage';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,7 +18,16 @@ const Index = () => {
   useEffect(() => {
     const savedSemesters = loadSemesters();
     if (savedSemesters.length > 0) {
-      setSemesters(savedSemesters);
+      // Check for courses without type and add default type
+      const updatedSemesters = savedSemesters.map(semester => ({
+        ...semester,
+        courses: semester.courses.map(course => ({
+          ...course,
+          type: course.type || 'Others' // Add default type for backward compatibility
+        }))
+      }));
+      setSemesters(updatedSemesters);
+      saveSemesters(updatedSemesters); // Save updated format
     } else {
       // Add a default first semester for new users
       const defaultSemester: Semester = {
@@ -45,7 +54,7 @@ const Index = () => {
     toast.success('New semester added!');
   };
 
-  const addCourse = (semesterId: string, name: string, grade: Grade, credits: number) => {
+  const addCourse = (semesterId: string, name: string, grade: Grade, credits: number, type: CourseType) => {
     setSemesters(semesters.map(semester => {
       if (semester.id === semesterId) {
         return {
@@ -54,7 +63,8 @@ const Index = () => {
             id: generateId(),
             name,
             grade,
-            credits
+            credits,
+            type
           }]
         };
       }
@@ -63,14 +73,14 @@ const Index = () => {
     toast.success('Course added!');
   };
 
-  const updateCourse = (semesterId: string, courseId: string, name: string, grade: Grade, credits: number) => {
+  const updateCourse = (semesterId: string, courseId: string, name: string, grade: Grade, credits: number, type: CourseType) => {
     setSemesters(semesters.map(semester => {
       if (semester.id === semesterId) {
         return {
           ...semester,
           courses: semester.courses.map(course => {
             if (course.id === courseId) {
-              return { ...course, name, grade, credits };
+              return { ...course, name, grade, credits, type };
             }
             return course;
           })

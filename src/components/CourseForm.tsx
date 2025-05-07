@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Grade } from '@/types';
+import { Grade, CourseType } from '@/types';
 import { generateId } from '@/utils/localStorage';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
@@ -11,13 +10,14 @@ import { toast } from 'sonner';
 
 interface CourseFormProps {
   semesterId: string;
-  onAddCourse: (semesterId: string, name: string, grade: Grade, credits: number) => void;
+  onAddCourse: (semesterId: string, name: string, grade: Grade, credits: number, type: CourseType) => void;
 }
 
 const CourseForm: React.FC<CourseFormProps> = ({ semesterId, onAddCourse }) => {
   const [name, setName] = useState('');
   const [grade, setGrade] = useState<Grade | ''>('');
   const [credits, setCredits] = useState<number | ''>('');
+  const [type, setType] = useState<CourseType>('Others');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,15 +37,16 @@ const CourseForm: React.FC<CourseFormProps> = ({ semesterId, onAddCourse }) => {
       return;
     }
     
-    onAddCourse(semesterId, name, grade, credits);
+    onAddCourse(semesterId, name, grade, credits, type);
     setName('');
     setGrade('');
     setCredits('');
+    // Keep the same course type for consecutive additions
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white/50 rounded-lg p-4 shadow-sm border border-border">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="space-y-2">
           <Label htmlFor={`course-name-${semesterId}`}>Course Name</Label>
           <Input
@@ -73,6 +74,26 @@ const CourseForm: React.FC<CourseFormProps> = ({ semesterId, onAddCourse }) => {
               <SelectItem value="C">C (6 points)</SelectItem>
               <SelectItem value="C-">C- (5 points)</SelectItem>
               <SelectItem value="D">D (4 points)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor={`course-type-${semesterId}`}>Course Type</Label>
+          <Select value={type} onValueChange={(value) => setType(value as CourseType)}>
+            <SelectTrigger id={`course-type-${semesterId}`} className="w-full">
+              <SelectValue placeholder="Select Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Major">Major</SelectItem>
+              <SelectItem value="Minor">Minor</SelectItem>
+              <SelectItem value="Dept Elective">Dept Elective</SelectItem>
+              <SelectItem value="Free Elective">Free Elective</SelectItem>
+              <SelectItem value="Lab">Lab</SelectItem>
+              <SelectItem value="Liberal Arts">Liberal Arts</SelectItem>
+              <SelectItem value="Creative Arts">Creative Arts</SelectItem>
+              <SelectItem value="Additional">Additional (Not counted in CGPA)</SelectItem>
+              <SelectItem value="Others">Others</SelectItem>
             </SelectContent>
           </Select>
         </div>
