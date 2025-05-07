@@ -1,17 +1,16 @@
 
 import React, { useState } from 'react';
-import { Course, Grade } from '@/types';
+import { Course, Grade, CourseType } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import { gradePoints } from '@/utils/gradeCalculator';
 import { Pencil, Trash, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CourseListProps {
   courses: Course[];
-  onUpdateCourse: (courseId: string, name: string, grade: Grade, credits: number) => void;
+  onUpdateCourse: (courseId: string, name: string, grade: Grade, credits: number, type: CourseType) => void;
   onDeleteCourse: (courseId: string) => void;
 }
 
@@ -20,12 +19,14 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
   const [editName, setEditName] = useState('');
   const [editGrade, setEditGrade] = useState<Grade | ''>('');
   const [editCredits, setEditCredits] = useState<number | ''>('');
+  const [editType, setEditType] = useState<CourseType>('Others');
 
   const startEditing = (course: Course) => {
     setEditingId(course.id);
     setEditName(course.name);
     setEditGrade(course.grade);
     setEditCredits(course.credits);
+    setEditType(course.type);
   };
 
   const cancelEditing = () => {
@@ -48,7 +49,7 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
       return;
     }
 
-    onUpdateCourse(courseId, editName, editGrade, editCredits as number);
+    onUpdateCourse(courseId, editName, editGrade, editCredits as number, editType);
     setEditingId(null);
   };
 
@@ -65,6 +66,7 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
             <th className="p-3 text-center">Grade</th>
             <th className="p-3 text-center">Points</th>
             <th className="p-3 text-center">Credits</th>
+            <th className="p-3 text-center">Type</th>
             <th className="p-3 text-right rounded-tr-lg">Actions</th>
           </tr>
         </thead>
@@ -112,6 +114,24 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
                       className="w-full text-center"
                     />
                   </td>
+                  <td className="p-3">
+                    <Select value={editType} onValueChange={(value) => setEditType(value as CourseType)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Major">Major</SelectItem>
+                        <SelectItem value="Minor">Minor</SelectItem>
+                        <SelectItem value="Dept Elective">Dept Elective</SelectItem>
+                        <SelectItem value="Free Elective">Free Elective</SelectItem>
+                        <SelectItem value="Lab">Lab</SelectItem>
+                        <SelectItem value="Liberal Arts">Liberal Arts</SelectItem>
+                        <SelectItem value="Creative Arts">Creative Arts</SelectItem>
+                        <SelectItem value="Additional">Additional</SelectItem>
+                        <SelectItem value="Others">Others</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={cancelEditing}>
@@ -129,6 +149,11 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
                   <td className="p-3 text-center">{course.grade}</td>
                   <td className="p-3 text-center">{gradePoints[course.grade]}</td>
                   <td className="p-3 text-center">{course.credits}</td>
+                  <td className="p-3 text-center">
+                    <span className={`px-2 py-1 rounded text-xs ${course.type === 'Additional' ? 'bg-gray-200 text-gray-700' : 'bg-primary/20 text-primary'}`}>
+                      {course.type}
+                    </span>
+                  </td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => startEditing(course)}>
