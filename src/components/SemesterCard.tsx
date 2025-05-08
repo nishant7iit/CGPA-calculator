@@ -55,63 +55,63 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
 
   return (
     <Card className="w-full animate-fade-in card-gradient shadow-md">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Input
-              value={semester.name}
-              onChange={(e) => onUpdateSemesterName(semester.id, e.target.value)}
-              className="font-bold text-lg max-w-[250px]"
-              placeholder="Semester Name"
-            />
-            <CollapsibleTrigger asChild onClick={() => onToggleSemesterCollapse(semester.id)}>
-              <Button variant="ghost" size="icon">
-                {semester.isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-          <div className="flex space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveSemesterUp(semester.id)}
-              disabled={isFirst}
-            >
-              <ArrowUp size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveSemesterDown(semester.id)}
-              disabled={isLast}
-            >
-              <ArrowDown size={16} />
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <Trash size={16} />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Semester</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete {semester.name}? This will remove all courses in this semester.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDeleteSemester(semester.id)}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
-      </CardHeader>
       <Collapsible open={!semester.isCollapsed} className="w-full">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Input
+                value={semester.name}
+                onChange={(e) => onUpdateSemesterName(semester.id, e.target.value)}
+                className="font-bold text-lg max-w-[250px]"
+                placeholder="Semester Name"
+              />
+              <CollapsibleTrigger asChild onClick={() => onToggleSemesterCollapse(semester.id)}>
+                <Button variant="ghost" size="icon">
+                  {semester.isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onMoveSemesterUp(semester.id)}
+                disabled={isFirst}
+              >
+                <ArrowUp size={16} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onMoveSemesterDown(semester.id)}
+                disabled={isLast}
+              >
+                <ArrowDown size={16} />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Trash size={16} />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Semester</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {semester.name}? This will remove all courses in this semester.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDeleteSemester(semester.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </CardHeader>
         <CollapsibleContent>
           <CardContent className="pb-2">
             <CourseForm
