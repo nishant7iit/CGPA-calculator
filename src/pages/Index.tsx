@@ -6,14 +6,24 @@ import SemesterCard from '@/components/SemesterCard';
 import SummaryCard from '@/components/SummaryCard';
 import HowToUse from '@/components/HowToUse';
 import Footer from '@/components/Footer';
+import CourseFilters from '@/components/CourseFilters';
+import TypeAnalysis from '@/components/TypeAnalysis';
 import { Course, Grade, Semester, CourseType } from '@/types';
 import { generateId, saveSemesters, loadSemesters, clearAllData } from '@/utils/localStorage';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Index = () => {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [showGuide, setShowGuide] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState<CourseType[]>([]);
+  const allTypes: CourseType[] = [
+    'Core', 'Basic Engineering', 'Basic Science', 'Soft Skills',
+    'Inside Basket', 'Outside Basket', 'Dept Elective', 'Free Elective',
+    'Minor', 'Major', 'Lab', 'Liberal Arts', 'Creative Arts', 
+    'Additional', 'Others'
+  ];
 
   useEffect(() => {
     const savedSemesters = loadSemesters();
@@ -33,11 +43,15 @@ const Index = () => {
       const defaultSemester: Semester = {
         id: generateId(),
         name: 'Semester 1',
-        courses: []
+        courses: [],
+        isCollapsed: false
       };
       setSemesters([defaultSemester]);
       saveSemesters([defaultSemester]);
     }
+    
+    // Set all types as selected by default
+    setSelectedTypes([...allTypes]);
   }, []);
 
   useEffect(() => {
@@ -48,7 +62,8 @@ const Index = () => {
     const newSemester: Semester = {
       id: generateId(),
       name: `Semester ${semesters.length + 1}`,
-      courses: []
+      courses: [],
+      isCollapsed: false
     };
     setSemesters([...semesters, newSemester]);
     toast.success('New semester added!');
@@ -127,7 +142,8 @@ const Index = () => {
       const defaultSemester: Semester = {
         id: generateId(),
         name: 'Semester 1',
-        courses: []
+        courses: [],
+        isCollapsed: false
       };
       setSemesters([defaultSemester]);
     }, 500);
@@ -150,6 +166,27 @@ const Index = () => {
       setSemesters(newSemesters);
     }
   };
+  
+  const toggleSemesterCollapse = (semesterId: string) => {
+    setSemesters(semesters.map(semester => {
+      if (semester.id === semesterId) {
+        return { ...semester, isCollapsed: !semester.isCollapsed };
+      }
+      return semester;
+    }));
+  };
+
+  // Filter semesters and courses based on selected types
+  const filteredSemesters = semesters.map(semester => ({
+    ...semester,
+    // Only show courses of selected types if filters are active
+    courses: selectedTypes.length === 0 
+      ? semester.courses 
+      : semester.courses.filter(course => selectedTypes.includes(course.type))
+  }));
+
+  // Get all courses across all semesters for the global statistics
+  const allCourses = semesters.flatMap(semester => semester.courses);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-secondary/30">
@@ -171,9 +208,16 @@ const Index = () => {
           
           {showGuide && <HowToUse />}
           
+          <div className="mb-6">
+            <CourseFilters 
+              selectedTypes={selectedTypes} 
+              onTypeChange={setSelectedTypes} 
+            />
+          </div>
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <div className="lg:col-span-2 space-y-6">
-              {semesters.map((semester, index) => (
+              {filteredSemesters.map((semester, index) => (
                 <SemesterCard
                   key={semester.id}
                   semester={semester}
@@ -184,6 +228,7 @@ const Index = () => {
                   onDeleteSemester={deleteSemester}
                   onMoveSemesterUp={moveSemesterUp}
                   onMoveSemesterDown={moveSemesterDown}
+                  onToggleSemesterCollapse={toggleSemesterCollapse}
                   isFirst={index === 0}
                   isLast={index === semesters.length - 1}
                 />
@@ -200,11 +245,19 @@ const Index = () => {
               )}
             </div>
             
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
               <SummaryCard
                 semesters={semesters}
                 onClearAllData={handleClearAllData}
               />
+              
+              {allCourses.length > 0 && (
+                <Card>
+                  <CardContent className="pt-6">
+                    <TypeAnalysis courses={allCourses} />
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

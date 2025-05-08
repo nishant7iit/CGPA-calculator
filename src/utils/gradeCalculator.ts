@@ -29,10 +29,12 @@ export const calculateSGPA = (courses: Course[]): number => {
     totalCredits += course.credits;
   });
   
+  // Formula: Sum of (Grade Points × Credits) / Total Credits
   return totalCredits > 0 ? parseFloat((totalPoints / totalCredits).toFixed(2)) : 0;
 };
 
 export const calculateCGPA = (semesters: Semester[]): number => {
+  // For CGPA, we need all courses across all semesters
   const allCourses = semesters.flatMap(semester => semester.courses);
   // Filter out 'Additional' course types
   const countedCourses = allCourses.filter(course => course.type !== 'Additional');
@@ -48,6 +50,7 @@ export const calculateCGPA = (semesters: Semester[]): number => {
     totalCredits += course.credits;
   });
   
+  // Formula: Sum of (Grade Points × Credits) / Total Credits for all courses
   return totalCredits > 0 ? parseFloat((totalPoints / totalCredits).toFixed(2)) : 0;
 };
 

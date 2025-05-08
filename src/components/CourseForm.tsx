@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Grade, CourseType } from '@/types';
-import { generateId } from '@/utils/localStorage';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -85,6 +85,12 @@ const CourseForm: React.FC<CourseFormProps> = ({ semesterId, onAddCourse }) => {
               <SelectValue placeholder="Select Type" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="Core">Core</SelectItem>
+              <SelectItem value="Basic Engineering">Basic Engineering</SelectItem>
+              <SelectItem value="Basic Science">Basic Science</SelectItem>
+              <SelectItem value="Soft Skills">Soft Skills</SelectItem>
+              <SelectItem value="Inside Basket">Inside Basket</SelectItem>
+              <SelectItem value="Outside Basket">Outside Basket</SelectItem>
               <SelectItem value="Major">Major</SelectItem>
               <SelectItem value="Minor">Minor</SelectItem>
               <SelectItem value="Dept Elective">Dept Elective</SelectItem>

@@ -120,6 +120,12 @@ const CourseList: React.FC<CourseListProps> = ({ courses, onUpdateCourse, onDele
                         <SelectValue placeholder="Type" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="Core">Core</SelectItem>
+                        <SelectItem value="Basic Engineering">Basic Engineering</SelectItem>
+                        <SelectItem value="Basic Science">Basic Science</SelectItem>
+                        <SelectItem value="Soft Skills">Soft Skills</SelectItem>
+                        <SelectItem value="Inside Basket">Inside Basket</SelectItem>
+                        <SelectItem value="Outside Basket">Outside Basket</SelectItem>
                         <SelectItem value="Major">Major</SelectItem>
                         <SelectItem value="Minor">Minor</SelectItem>
                         <SelectItem value="Dept Elective">Dept Elective</SelectItem>

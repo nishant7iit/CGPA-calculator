@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Semester } from '@/types';
+import { Semester, CourseType } from '@/types';
 import { calculateCGPA, calculateSGPA, formatNumber } from '@/utils/gradeCalculator';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -34,11 +34,27 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ semesters, onClearAllData }) 
     }
   };
 
-  const totalCredits = semesters.reduce((sum, semester) => {
-    return sum + semester.courses.reduce((credits, course) => credits + course.credits, 0);
-  }, 0);
-
-  const totalCourses = semesters.reduce((sum, semester) => sum + semester.courses.length, 0);
+  // Course and credit statistics
+  const allCourses = semesters.flatMap(semester => semester.courses);
+  const countedCourses = allCourses.filter(course => course.type !== 'Additional');
+  
+  const totalCredits = countedCourses.reduce((sum, course) => sum + course.credits, 0);
+  const totalCourses = countedCourses.length;
+  
+  const additionalCredits = allCourses
+    .filter(course => course.type === 'Additional')
+    .reduce((sum, course) => sum + course.credits, 0);
+  
+  // Course type distribution
+  const courseTypeCount: Record<CourseType, { count: number, credits: number }> = {} as Record<CourseType, { count: number, credits: number }>;
+  
+  allCourses.forEach(course => {
+    if (!courseTypeCount[course.type]) {
+      courseTypeCount[course.type] = { count: 0, credits: 0 };
+    }
+    courseTypeCount[course.type].count++;
+    courseTypeCount[course.type].credits += course.credits;
+  });
 
   const getSGPALabel = (value: number) => {
     if (value >= 9.5) return 'Outstanding';
@@ -49,6 +65,22 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ semesters, onClearAllData }) 
     if (value >= 4.5) return 'Fair';
     return 'Needs Improvement';
   };
+
+  // Find best and worst semester
+  const semesterSGPAs = semesters.map(semester => {
+    return {
+      name: semester.name,
+      sgpa: calculateSGPA(semester.courses)
+    };
+  });
+  
+  const bestSemester = semesterSGPAs.length > 0 
+    ? semesterSGPAs.reduce((prev, current) => (prev.sgpa > current.sgpa) ? prev : current)
+    : { name: '-', sgpa: 0 };
+    
+  const worstSemester = semesterSGPAs.length > 0 
+    ? semesterSGPAs.reduce((prev, current) => (prev.sgpa < current.sgpa && current.sgpa > 0) ? prev : current)
+    : { name: '-', sgpa: 0 };
 
   return (
     <Card className="w-full card-gradient shadow-md">
@@ -71,20 +103,29 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ semesters, onClearAllData }) 
             <p className="text-xl md:text-2xl font-bold">{semesters.length}</p>
           </div>
           <div className="bg-secondary/60 rounded-lg p-4 text-center">
-            <p className="text-xs md:text-sm text-muted-foreground">Total Courses</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Counted Courses</p>
             <p className="text-xl md:text-2xl font-bold">{totalCourses}</p>
           </div>
           <div className="bg-secondary/60 rounded-lg p-4 text-center">
-            <p className="text-xs md:text-sm text-muted-foreground">Total Credits</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Counted Credits</p>
             <p className="text-xl md:text-2xl font-bold">{totalCredits}</p>
           </div>
           <div className="bg-secondary/60 rounded-lg p-4 text-center">
-            <p className="text-xs md:text-sm text-muted-foreground">Best Semester</p>
-            <p className="text-xl md:text-2xl font-bold">
-              {semesters.length > 0
-                ? formatNumber(Math.max(...semesters.map(s => calculateSGPA(s.courses))))
-                : '0.00'}
-            </p>
+            <p className="text-xs md:text-sm text-muted-foreground">Additional Credits</p>
+            <p className="text-xl md:text-2xl font-bold">{additionalCredits}</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 my-4">
+          <div className="bg-secondary/60 rounded-lg p-4">
+            <p className="text-xs md:text-sm text-muted-foreground text-center">Best Semester</p>
+            <p className="text-lg font-bold text-center">{bestSemester.name}</p>
+            <p className="text-center">{formatNumber(bestSemester.sgpa)}</p>
+          </div>
+          <div className="bg-secondary/60 rounded-lg p-4">
+            <p className="text-xs md:text-sm text-muted-foreground text-center">Lowest SGPA</p>
+            <p className="text-lg font-bold text-center">{worstSemester.name}</p>
+            <p className="text-center">{formatNumber(worstSemester.sgpa)}</p>
           </div>
         </div>
 

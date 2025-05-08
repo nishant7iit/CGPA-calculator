@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CourseForm from './CourseForm';
 import CourseList from './CourseList';
+import TypeAnalysis from './TypeAnalysis';
 import { calculateSGPA, formatNumber } from '@/utils/gradeCalculator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Trash, ArrowDown, ArrowUp } from 'lucide-react';
+import { Trash, ArrowDown, ArrowUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface SemesterCardProps {
   semester: Semester;
@@ -19,6 +21,7 @@ interface SemesterCardProps {
   onDeleteSemester: (semesterId: string) => void;
   onMoveSemesterUp: (semesterId: string) => void;
   onMoveSemesterDown: (semesterId: string) => void;
+  onToggleSemesterCollapse: (semesterId: string) => void;
   isFirst: boolean;
   isLast: boolean;
 }
@@ -32,6 +35,7 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
   onDeleteSemester,
   onMoveSemesterUp,
   onMoveSemesterDown,
+  onToggleSemesterCollapse,
   isFirst,
   isLast,
 }) => {
@@ -53,12 +57,19 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
     <Card className="w-full animate-fade-in card-gradient shadow-md">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <Input
-            value={semester.name}
-            onChange={(e) => onUpdateSemesterName(semester.id, e.target.value)}
-            className="font-bold text-lg max-w-[250px]"
-            placeholder="Semester Name"
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              value={semester.name}
+              onChange={(e) => onUpdateSemesterName(semester.id, e.target.value)}
+              className="font-bold text-lg max-w-[250px]"
+              placeholder="Semester Name"
+            />
+            <CollapsibleTrigger asChild onClick={() => onToggleSemesterCollapse(semester.id)}>
+              <Button variant="ghost" size="icon">
+                {semester.isCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
           <div className="flex space-x-1">
             <Button
               variant="ghost"
@@ -100,17 +111,27 @@ const SemesterCard: React.FC<SemesterCardProps> = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pb-2">
-        <CourseForm
-          semesterId={semester.id}
-          onAddCourse={onAddCourse}
-        />
-        <CourseList
-          courses={semester.courses}
-          onUpdateCourse={handleUpdateCourse}
-          onDeleteCourse={handleDeleteCourse}
-        />
-      </CardContent>
+      <Collapsible open={!semester.isCollapsed} className="w-full">
+        <CollapsibleContent>
+          <CardContent className="pb-2">
+            <CourseForm
+              semesterId={semester.id}
+              onAddCourse={onAddCourse}
+            />
+            <CourseList
+              courses={semester.courses}
+              onUpdateCourse={handleUpdateCourse}
+              onDeleteCourse={handleDeleteCourse}
+            />
+            
+            {semester.courses.length > 0 && (
+              <div className="mt-4">
+                <TypeAnalysis courses={semester.courses} />
+              </div>
+            )}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
       <CardFooter className="flex flex-col md:flex-row md:justify-between bg-secondary/50 rounded-b-lg p-4">
         <div className="flex flex-col w-full md:w-auto mb-2 md:mb-0">
           <div className="flex justify-between md:justify-start gap-4">
