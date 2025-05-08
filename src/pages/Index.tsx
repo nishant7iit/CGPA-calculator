@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -8,6 +7,7 @@ import HowToUse from '@/components/HowToUse';
 import Footer from '@/components/Footer';
 import CourseFilters from '@/components/CourseFilters';
 import TypeAnalysis from '@/components/TypeAnalysis';
+import CreditsAnalyticsCard from '@/components/CreditsAnalyticsCard';
 import { Course, Grade, Semester, CourseType } from '@/types';
 import { generateId, saveSemesters, loadSemesters, clearAllData } from '@/utils/localStorage';
 import { Plus } from 'lucide-react';
@@ -250,6 +250,8 @@ const Index = () => {
                 semesters={semesters}
                 onClearAllData={handleClearAllData}
               />
+              
+              <CreditsAnalyticsCard semesters={semesters} />
               
               {allCourses.length > 0 && (
                 <Card>
